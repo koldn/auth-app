@@ -1,11 +1,7 @@
 package org.authapp.security.user
 
+import org.authapp.security.feature.Principal
 import java.util.concurrent.ConcurrentHashMap
-
-interface Principal {
-    fun userName(): String
-    fun password(): String
-}
 
 class UserPrincipal(private val userName: String, private val password: String) : Principal {
     override fun userName() = userName

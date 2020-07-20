@@ -45,12 +45,12 @@ class DefaultPasswordCoder : PasswordCoder {
     }
 
     override fun matches(presentedPassword: String, hashedPassword: String): Boolean {
-        val messageDigest = MessageDigest.getInstance("SHA-512")
         val split = hashedPassword.split(DELIMITER)
         val extractedSalt = Base64.getDecoder().decode(split[0])
         val extractedHashedPassword = Base64.getDecoder().decode(split[1])
-        messageDigest.update(extractedSalt)
         val presentedBytes = presentedPassword.toByteArray(Charsets.UTF_8)
+        val messageDigest = MessageDigest.getInstance("SHA-512")
+        messageDigest.update(extractedSalt)
         val digest = messageDigest.digest(presentedBytes)
         return extractedHashedPassword!!.contentEquals(digest)
     }
