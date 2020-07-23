@@ -51,13 +51,27 @@ class AuthenticationTest {
     }
 
     @Test
-    fun `Unauthorized on insufficient role`(): Unit = withTestApplication(Application::configureApplication) {
+    fun `Unauthorized on admin space with reviewer`(): Unit = withTestApplication(Application::configureApplication) {
+        val userRepository by application.di().instance<DataRepository<DomainUser>>()
+        val passwordCoder by application.di().instance<PasswordCoder>()
+        userRepository.save(DomainUser("test", passwordCoder.encodePassword("12345"), SystemDefinedAggregate.REVIEWER_ROLE_AGGREGATE.aggregateId))
+        val credentials = Base64.getEncoder().encodeToString("test:12345".toByteArray(StandardCharsets.UTF_8))
+
+        with(handleRequest(HttpMethod.Post, "/admin_space") {
+            addHeader(HttpHeaders.Authorization, "Basic $credentials")
+        }) {
+            Assertions.assertEquals(HttpStatusCode.Unauthorized, response.status())
+        }
+    }
+
+    @Test
+    fun `Unauthorized on reviewer space with user`(): Unit = withTestApplication(Application::configureApplication) {
         val userRepository by application.di().instance<DataRepository<DomainUser>>()
         val passwordCoder by application.di().instance<PasswordCoder>()
         userRepository.save(DomainUser("test", passwordCoder.encodePassword("12345"), SystemDefinedAggregate.USER_ROLE_AGGREGATE.aggregateId))
         val credentials = Base64.getEncoder().encodeToString("test:12345".toByteArray(StandardCharsets.UTF_8))
 
-        with(handleRequest(HttpMethod.Post, "/admin_space") {
+        with(handleRequest(HttpMethod.Post, "/reviewer_space") {
             addHeader(HttpHeaders.Authorization, "Basic $credentials")
         }) {
             Assertions.assertEquals(HttpStatusCode.Unauthorized, response.status())
