@@ -9,6 +9,7 @@ import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.authapp.security.TokenFactory
+import org.authapp.security.auth.AuthenticatorCodes
 import org.authapp.security.auth.DefaultUserCredentialsExtractor
 import org.authapp.security.feature.Authentication
 import org.authapp.security.feature.ext.authenticate
@@ -31,7 +32,7 @@ fun main() {
 fun Application.configureApplication() {
     di {
         import(securityDeps())
-        import(repositories(), true)
+        import(repositories())
         bind<ConfigurationProperties>() with singleton { ConfigurationProperties() }
     }
     install(Authentication) {
@@ -40,19 +41,19 @@ fun Application.configureApplication() {
         credentialsExtractor = DefaultUserCredentialsExtractor
     }
     routing {
-        authenticate {
+        authenticate(AuthenticatorCodes.BASIC) {
             post("/authenticate") {
                 val token by di().instance<TokenFactory>()
                 val userName = call.getPrincipal().userName()
                 call.respondText(token.createToken(userName))
             }
         }
-        authenticate(SystemDefinedRoles.ADMIN) {
+        authenticate(AuthenticatorCodes.BASIC, SystemDefinedRoles.ADMIN) {
             post("/admin_space") {
                 call.respondText("Hello admin!")
             }
         }
-        authenticate(SystemDefinedRoles.REVIEWER) {
+        authenticate(AuthenticatorCodes.BASIC, SystemDefinedRoles.REVIEWER) {
             post("/reviewer_space") {
                 call.respondText("Hello reviewer!")
             }

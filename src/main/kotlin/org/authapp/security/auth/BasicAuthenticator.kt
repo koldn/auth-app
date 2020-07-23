@@ -23,4 +23,6 @@ class BasicAuthenticator(private val principalLoader: PrincipalLoader, private v
         }
         return SuccessFullAuthentication(principal)
     }
+
+    override fun code() = AuthenticatorCodes.BASIC
 }

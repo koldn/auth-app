@@ -11,14 +11,13 @@ fun ApplicationCall.getPrincipal(): Principal {
     return this.attributes[AuthConstants.principalKey]
 }
 
-fun Route.authenticate(role: String? = null, handler: Route.() -> Unit): Route {
+fun Route.authenticate(authenticatorCode: String, role: String? = null, handler: Route.() -> Unit): Route {
     val authenticatedRouteWithRole = createChild(object : RouteSelector(RouteSelectorEvaluation.qualityConstant) {
         override fun evaluate(context: RoutingResolveContext, segmentIndex: Int): RouteSelectorEvaluation {
             return RouteSelectorEvaluation.Constant
         }
-
     })
-    application.feature(Authentication).installAuthenticationToPipeLine(authenticatedRouteWithRole, role)
+    application.feature(Authentication).installAuthenticationToPipeLine(authenticatedRouteWithRole, authenticatorCode, role)
     authenticatedRouteWithRole.handler()
     return authenticatedRouteWithRole
 }

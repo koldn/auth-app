@@ -8,7 +8,7 @@ import io.ktor.response.respond
 import io.ktor.util.AttributeKey
 import io.ktor.util.pipeline.PipelinePhase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import org.authapp.security.feature.ext.getPrincipal
 import org.authapp.security.feature.spi.*
 
@@ -21,7 +21,7 @@ class Authentication(config: Config) {
 
     private val authPhase = PipelinePhase("auth")
     private val rolesPhase = PipelinePhase("rolesCheck")
-    private val authenticators = config.authenticators.toList()
+    private val authenticators = config.authenticators.associateBy({ it.code() }, { it })
     private val credentialsExtractor = config.credentialsExtractor!!
 
     class Config {
@@ -29,8 +29,8 @@ class Authentication(config: Config) {
         var credentialsExtractor: UserCredentialsExtractor? = null
     }
 
-    fun installAuthenticationToPipeLine(pipeline: ApplicationCallPipeline, role: String?) {
-        installAuthentication(pipeline)
+    fun installAuthenticationToPipeLine(pipeline: ApplicationCallPipeline, authenticatorCode: String, role: String?) {
+        installAuthentication(pipeline, authenticatorCode)
         if (role != null) {
             pipeline.insertPhaseAfter(authPhase, rolesPhase)
             pipeline.intercept(rolesPhase) {
@@ -42,7 +42,10 @@ class Authentication(config: Config) {
         }
     }
 
-    private fun installAuthentication(pipeline: ApplicationCallPipeline) {
+    private fun installAuthentication(pipeline: ApplicationCallPipeline, authenticatorCode: String) {
+        if (authenticators[authenticatorCode] == null) {
+            throw IllegalArgumentException("Authenticator with code $authenticatorCode is not registered")
+        }
         pipeline.insertPhaseAfter(ApplicationCallPipeline.Features, authPhase)
         pipeline.intercept(authPhase) {
             val credentials = credentialsExtractor.extract(call)
@@ -51,15 +54,9 @@ class Authentication(config: Config) {
                 this.finish()
                 return@intercept
             }
-            val result = async(Dispatchers.IO) {
-                authenticators.forEach {
-                    val authenticationResult = it.authenticate(credentials)
-                    if (authenticationResult !is UnsupportedAuthenticationCredentials) {
-                        return@async authenticationResult
-                    }
-                }
-                return@async FailedAuthentication("Authenticator not found")
-            }.await()
+            val result = withContext(Dispatchers.IO) {
+                authenticators.getValue(authenticatorCode).authenticate(credentials)
+            }
             when (result) {
                 is SuccessFullAuthentication -> {
                     call.attributes.put(AuthConstants.principalKey, result.principal)
