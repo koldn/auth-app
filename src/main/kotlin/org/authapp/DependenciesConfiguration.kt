@@ -4,7 +4,7 @@ import org.authapp.security.TokenFactory
 import org.authapp.security.auth.BasicAuthenticator
 import org.authapp.security.encrypt.DefaultPasswordCoder
 import org.authapp.security.encrypt.PasswordCoder
-import org.authapp.security.feature.Authenticator
+import org.authapp.security.feature.spi.Authenticator
 import org.authapp.security.jwt.JwtTokenFactory
 import org.authapp.security.repository.DataRepository
 import org.authapp.security.repository.InMemoryRoleAggregateRepository

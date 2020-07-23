@@ -11,8 +11,8 @@ import io.ktor.server.netty.Netty
 import org.authapp.security.TokenFactory
 import org.authapp.security.auth.DefaultUserCredentialsExtractor
 import org.authapp.security.feature.Authentication
-import org.authapp.security.feature.Authenticator
-import org.authapp.security.feature.getPrincipal
+import org.authapp.security.feature.ext.getPrincipal
+import org.authapp.security.feature.spi.Authenticator
 import org.kodein.di.allInstances
 import org.kodein.di.bind
 import org.kodein.di.instance

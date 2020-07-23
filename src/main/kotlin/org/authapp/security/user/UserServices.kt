@@ -1,6 +1,6 @@
 package org.authapp.security.user
 
-import org.authapp.security.feature.Principal
+import org.authapp.security.feature.spi.Principal
 import org.authapp.security.repository.DataRepository
 import org.authapp.security.repository.domain.DomainUser
 import org.authapp.security.repository.domain.RoleAggregate

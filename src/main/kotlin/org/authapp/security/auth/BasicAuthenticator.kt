@@ -1,7 +1,7 @@
 package org.authapp.security.auth
 
 import org.authapp.security.encrypt.PasswordCoder
-import org.authapp.security.feature.*
+import org.authapp.security.feature.spi.*
 import org.authapp.security.user.PrincipalLoader
 
 class BasicAuthenticator(private val principalLoader: PrincipalLoader, private val passwordCoder: PasswordCoder) : Authenticator {

@@ -1,6 +1,5 @@
 package org.authapp.security.feature
 
-import io.ktor.application.ApplicationCall
 import io.ktor.application.ApplicationCallPipeline
 import io.ktor.application.ApplicationFeature
 import io.ktor.application.call
@@ -10,6 +9,7 @@ import io.ktor.util.AttributeKey
 import io.ktor.util.pipeline.PipelinePhase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import org.authapp.security.feature.spi.*
 
 
 object AuthConstants {
@@ -66,27 +66,3 @@ class Authentication(config: Config) {
     }
 }
 
-fun ApplicationCall.getPrincipal(): Principal {
-    return this.attributes[AuthConstants.principalKey]
-}
-
-interface UserCredentials
-
-interface UserCredentialsExtractor {
-    fun extract(applicationCall: ApplicationCall): UserCredentials?
-}
-
-interface Principal {
-    fun userName(): String
-    fun password(): String
-    fun hasRole(role: String): Boolean
-}
-
-interface Authenticator {
-    suspend fun authenticate(credentials: UserCredentials): AuthenticationResult
-}
-
-sealed class AuthenticationResult
-class SuccessFullAuthentication(val principal: Principal) : AuthenticationResult()
-class FailedAuthentication(val errorMessage: String) : AuthenticationResult()
-object UnsupportedAuthenticationCredentials : AuthenticationResult()
