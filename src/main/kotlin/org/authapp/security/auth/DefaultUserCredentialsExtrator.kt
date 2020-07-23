@@ -4,6 +4,7 @@ import io.ktor.application.ApplicationCall
 import io.ktor.http.HttpHeaders
 import org.authapp.security.feature.spi.UserCredentials
 import org.authapp.security.feature.spi.UserCredentialsExtractor
+import org.authapp.security.jwt.JwtAuthenticator
 import java.nio.charset.StandardCharsets
 import java.util.*
 
@@ -15,6 +16,9 @@ object DefaultUserCredentialsExtractor : UserCredentialsExtractor {
             val decodedAuthData = Base64.getDecoder().decode(authHeader.substring(6)).toString(StandardCharsets.UTF_8)
             val split = decodedAuthData.split(":")
             return BasicAuthenticator.BasicCredentials(split[0], split[1])
+        }
+        if (authHeader.startsWith("Bearer ")) {
+            return JwtAuthenticator.TokenCredentials(authHeader.substringAfter("Bearer "))
         }
         return null
     }

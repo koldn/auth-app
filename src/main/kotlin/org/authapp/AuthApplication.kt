@@ -8,15 +8,14 @@ import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import org.authapp.security.TokenFactory
 import org.authapp.security.auth.AuthenticatorCodes
 import org.authapp.security.auth.DefaultUserCredentialsExtractor
 import org.authapp.security.feature.Authentication
 import org.authapp.security.feature.ext.authenticate
 import org.authapp.security.feature.ext.getPrincipal
 import org.authapp.security.feature.spi.Authenticator
+import org.authapp.security.jwt.TokenFactory
 import org.authapp.security.user.role.SystemDefinedRoles
-import org.kodein.di.allInstances
 import org.kodein.di.bind
 import org.kodein.di.instance
 import org.kodein.di.ktor.di
@@ -36,8 +35,9 @@ fun Application.configureApplication() {
         bind<ConfigurationProperties>() with singleton { ConfigurationProperties() }
     }
     install(Authentication) {
-        val availableAuthenticators by di().allInstances<Authenticator>()
-        authenticators = availableAuthenticators.toList()
+        val basicAuthenticator by di().instance<Authenticator>(tag = AuthenticatorCodes.BASIC)
+        val tokenAuthenticator by di().instance<Authenticator>(tag = AuthenticatorCodes.TOKEN)
+        authenticators = listOf(basicAuthenticator, tokenAuthenticator)
         credentialsExtractor = DefaultUserCredentialsExtractor
     }
     routing {
@@ -48,12 +48,12 @@ fun Application.configureApplication() {
                 call.respondText(token.createToken(userName))
             }
         }
-        authenticate(AuthenticatorCodes.BASIC, SystemDefinedRoles.ADMIN) {
+        authenticate(AuthenticatorCodes.TOKEN, SystemDefinedRoles.ADMIN) {
             post("/admin_space") {
                 call.respondText("Hello admin!")
             }
         }
-        authenticate(AuthenticatorCodes.BASIC, SystemDefinedRoles.REVIEWER) {
+        authenticate(AuthenticatorCodes.TOKEN, SystemDefinedRoles.REVIEWER) {
             post("/reviewer_space") {
                 call.respondText("Hello reviewer!")
             }

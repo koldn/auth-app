@@ -1,11 +1,13 @@
 package org.authapp
 
-import org.authapp.security.TokenFactory
+import org.authapp.security.auth.AuthenticatorCodes
 import org.authapp.security.auth.BasicAuthenticator
 import org.authapp.security.encrypt.DefaultPasswordCoder
 import org.authapp.security.encrypt.PasswordCoder
 import org.authapp.security.feature.spi.Authenticator
+import org.authapp.security.jwt.JwtAuthenticator
 import org.authapp.security.jwt.JwtTokenFactory
+import org.authapp.security.jwt.TokenFactory
 import org.authapp.security.repository.DataRepository
 import org.authapp.security.repository.InMemoryRoleAggregateRepository
 import org.authapp.security.repository.InMemoryUserRepository
@@ -22,12 +24,20 @@ fun securityDeps() = DI.Module("Security components", false) {
     //token factory
     bind<TokenFactory>() with singleton {
         val configurationProperties by di.instance<ConfigurationProperties>()
-        JwtTokenFactory(configurationProperties.getProperty("jwt.secret"))
+        val jwtSecret = configurationProperties.getProperty("jwt.secret")
+        val issuer = configurationProperties.getProperty("jwt.app_name")
+        JwtTokenFactory(issuer, jwtSecret)
     }
 
     bind<PasswordCoder>() with singleton { DefaultPasswordCoder() }
     bind<PrincipalLoader>() with singleton { DefaultPrincipalLoader(instance(), instance()) }
-    bind<Authenticator>() with singleton { BasicAuthenticator(instance(), instance()) }
+    bind<Authenticator>(tag = AuthenticatorCodes.BASIC) with singleton { BasicAuthenticator(instance(), instance()) }
+    bind<Authenticator>(tag = AuthenticatorCodes.TOKEN) with singleton {
+        val configurationProperties by di.instance<ConfigurationProperties>()
+        val jwtSecret = configurationProperties.getProperty("jwt.secret")
+        val issuer = configurationProperties.getProperty("jwt.app_name")
+        JwtAuthenticator(instance(), issuer, jwtSecret)
+    }
 }
 
 fun repositories() = DI.Module("Application repositories", true) {
