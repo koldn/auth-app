@@ -10,7 +10,7 @@ class BasicAuthenticator(private val principalLoader: PrincipalLoader, private v
 
     override suspend fun authenticate(credentials: UserCredentials): AuthenticationResult {
         if (credentials !is BasicCredentials) {
-            return UnsupportedAuthenticationCredentials
+            return FailedAuthentication("Unsupported credentials")
         }
         val userName = credentials.userName
         val rawPassword = credentials.password

@@ -65,7 +65,6 @@ class Authentication(config: Config) {
                     call.respond(HttpStatusCode.Unauthorized, result.errorMessage)
                     this.finish()
                 }
-                else -> call.respond(HttpStatusCode.InternalServerError, "This is bug")
             }
         }
     }
