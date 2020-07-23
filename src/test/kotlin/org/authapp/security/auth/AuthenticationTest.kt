@@ -7,8 +7,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.withTestApplication
 import org.authapp.configureApplication
+import org.authapp.security.encrypt.PasswordCoder
 import org.authapp.security.repository.DataRepository
 import org.authapp.security.repository.domain.DomainUser
+import org.authapp.security.repository.domain.SystemDefinedAggregate
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.kodein.di.instance
@@ -37,13 +39,43 @@ class AuthenticationTest {
     @Test
     fun `Token should be handled to found user`(): Unit = withTestApplication(Application::configureApplication) {
         val userRepository by application.di().instance<DataRepository<DomainUser>>()
-        userRepository.save(DomainUser("test", "QbQHlnmKIJE3thL3wHPNZQ==$\$GRi/UdiEWK1F+A3MYzmPNROGrelIdBTxTB/Zk7KDXqCRUf2qQKb+o2j2H2i72uunnwrQRiHUkSZGx/4ZDnO08g==", ""))
+        val passwordCoder by application.di().instance<PasswordCoder>()
+        userRepository.save(DomainUser("test", passwordCoder.encodePassword("12345"), ""))
         val credentials = Base64.getEncoder().encodeToString("test:12345".toByteArray(StandardCharsets.UTF_8))
         with(handleRequest(HttpMethod.Post, "/authenticate") {
             addHeader(HttpHeaders.Authorization, "Basic $credentials")
         }) {
             Assertions.assertEquals(HttpStatusCode.OK, response.status())
             Assertions.assertNotNull(response.content)
+        }
+    }
+
+    @Test
+    fun `Unauthorized on insufficient role`(): Unit = withTestApplication(Application::configureApplication) {
+        val userRepository by application.di().instance<DataRepository<DomainUser>>()
+        val passwordCoder by application.di().instance<PasswordCoder>()
+        userRepository.save(DomainUser("test", passwordCoder.encodePassword("12345"), SystemDefinedAggregate.USER_ROLE_AGGREGATE.aggregateId))
+        val credentials = Base64.getEncoder().encodeToString("test:12345".toByteArray(StandardCharsets.UTF_8))
+
+        with(handleRequest(HttpMethod.Post, "/admin_space") {
+            addHeader(HttpHeaders.Authorization, "Basic $credentials")
+        }) {
+            Assertions.assertEquals(HttpStatusCode.Unauthorized, response.status())
+        }
+    }
+
+    @Test
+    fun `Higher role has access`(): Unit = withTestApplication(Application::configureApplication) {
+        val userRepository by application.di().instance<DataRepository<DomainUser>>()
+        val passwordCoder by application.di().instance<PasswordCoder>()
+        userRepository.save(DomainUser("test", passwordCoder.encodePassword("12345"), SystemDefinedAggregate.ADMIN_ROLE_AGGREGATE.aggregateId))
+        val credentials = Base64.getEncoder().encodeToString("test:12345".toByteArray(StandardCharsets.UTF_8))
+
+        with(handleRequest(HttpMethod.Post, "/reviewer_space") {
+            addHeader(HttpHeaders.Authorization, "Basic $credentials")
+        }) {
+            Assertions.assertEquals(HttpStatusCode.OK, response.status())
+            Assertions.assertEquals("Hello reviewer!", response.content)
         }
     }
 }

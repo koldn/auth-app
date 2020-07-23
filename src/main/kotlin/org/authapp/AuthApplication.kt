@@ -11,8 +11,10 @@ import io.ktor.server.netty.Netty
 import org.authapp.security.TokenFactory
 import org.authapp.security.auth.DefaultUserCredentialsExtractor
 import org.authapp.security.feature.Authentication
+import org.authapp.security.feature.ext.authenticate
 import org.authapp.security.feature.ext.getPrincipal
 import org.authapp.security.feature.spi.Authenticator
+import org.authapp.security.user.role.SystemDefinedRoles
 import org.kodein.di.allInstances
 import org.kodein.di.bind
 import org.kodein.di.instance
@@ -38,10 +40,22 @@ fun Application.configureApplication() {
         credentialsExtractor = DefaultUserCredentialsExtractor
     }
     routing {
-        post("/authenticate") {
-            val token by di().instance<TokenFactory>()
-            val userName = call.getPrincipal().userName()
-            call.respondText(token.createToken(userName))
+        authenticate {
+            post("/authenticate") {
+                val token by di().instance<TokenFactory>()
+                val userName = call.getPrincipal().userName()
+                call.respondText(token.createToken(userName))
+            }
+        }
+        authenticate(SystemDefinedRoles.ADMIN) {
+            post("/admin_space") {
+                call.respondText("Hello admin!")
+            }
+        }
+        authenticate(SystemDefinedRoles.REVIEWER) {
+            post("/reviewer_space") {
+                call.respondText("Hello reviewer!")
+            }
         }
     }
 }
