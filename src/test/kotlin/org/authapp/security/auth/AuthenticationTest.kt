@@ -7,8 +7,12 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.withTestApplication
 import org.authapp.configureApplication
+import org.authapp.security.repository.DataRepository
+import org.authapp.security.repository.domain.DomainUser
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.kodein.di.instance
+import org.kodein.di.ktor.di
 import java.nio.charset.StandardCharsets
 import java.util.*
 
@@ -32,9 +36,11 @@ class AuthenticationTest {
 
     @Test
     fun `Token should be handled to found user`(): Unit = withTestApplication(Application::configureApplication) {
-        val password = Base64.getEncoder().encodeToString("test:12345".toByteArray(StandardCharsets.UTF_8))
+        val userRepository by application.di().instance<DataRepository<DomainUser>>()
+        userRepository.save(DomainUser("test", "QbQHlnmKIJE3thL3wHPNZQ==$\$GRi/UdiEWK1F+A3MYzmPNROGrelIdBTxTB/Zk7KDXqCRUf2qQKb+o2j2H2i72uunnwrQRiHUkSZGx/4ZDnO08g==", ""))
+        val credentials = Base64.getEncoder().encodeToString("test:12345".toByteArray(StandardCharsets.UTF_8))
         with(handleRequest(HttpMethod.Post, "/authenticate") {
-            addHeader(HttpHeaders.Authorization, "Basic $password")
+            addHeader(HttpHeaders.Authorization, "Basic $credentials")
         }) {
             Assertions.assertEquals(HttpStatusCode.OK, response.status())
             Assertions.assertNotNull(response.content)

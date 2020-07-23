@@ -29,6 +29,7 @@ fun main() {
 fun Application.configureApplication() {
     di {
         import(securityDeps())
+        import(repositories(), true)
         bind<ConfigurationProperties>() with singleton { ConfigurationProperties() }
     }
     install(Authentication) {

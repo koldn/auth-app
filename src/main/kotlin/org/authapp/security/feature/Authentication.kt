@@ -79,6 +79,7 @@ interface UserCredentialsExtractor {
 interface Principal {
     fun userName(): String
     fun password(): String
+    fun hasRole(role: String): Boolean
 }
 
 interface Authenticator {
