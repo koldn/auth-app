@@ -114,4 +114,25 @@ class AuthenticationTest {
             Assertions.assertEquals("Hello reviewer!", response.content)
         }
     }
+
+    @Test
+    fun `User role has access to user space`(): Unit = withTestApplication(Application::configureApplication) {
+        val userRepository by application.di().instance<DataRepository<DomainUser>>()
+        val passwordCoder by application.di().instance<PasswordCoder>()
+        userRepository.save(DomainUser("test", passwordCoder.encodePassword("12345"), SystemDefinedAggregate.USER_ROLE_AGGREGATE.aggregateId))
+        val credentials = Base64.getEncoder().encodeToString("test:12345".toByteArray(StandardCharsets.UTF_8))
+
+        val token: String
+        with(handleRequest(HttpMethod.Post, "/authenticate") {
+            addHeader(HttpHeaders.Authorization, "Basic $credentials")
+        }) {
+            token = response.content!!
+        }
+
+        with(handleRequest(HttpMethod.Post, "/user_space") {
+            addHeader(HttpHeaders.Authorization, "Bearer $token")
+        }) {
+            Assertions.assertEquals("Hello user!", response.content)
+        }
+    }
 }

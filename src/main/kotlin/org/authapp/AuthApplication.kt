@@ -58,5 +58,10 @@ fun Application.configureApplication() {
                 call.respondText("Hello reviewer!")
             }
         }
+        authenticate(AuthenticatorCodes.TOKEN, SystemDefinedRoles.USER) {
+            post("/user_space") {
+                call.respondText("Hello user!")
+            }
+        }
     }
 }
