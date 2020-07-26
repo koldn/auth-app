@@ -8,9 +8,7 @@ import org.authapp.security.feature.spi.Authenticator
 import org.authapp.security.jwt.JwtAuthenticator
 import org.authapp.security.jwt.JwtTokenFactory
 import org.authapp.security.jwt.TokenFactory
-import org.authapp.security.repository.DataRepository
-import org.authapp.security.repository.InMemoryRoleAggregateRepository
-import org.authapp.security.repository.InMemoryUserRepository
+import org.authapp.security.repository.*
 import org.authapp.security.repository.domain.DomainUser
 import org.authapp.security.repository.domain.RoleAggregate
 import org.authapp.security.user.DefaultPrincipalLoader
@@ -40,7 +38,27 @@ fun securityDeps() = DI.Module("Security components", false) {
     }
 }
 
-fun repositories() = DI.Module("Application repositories", true) {
-    bind<DataRepository<DomainUser>>() with singleton { InMemoryUserRepository() }
+fun database() = DI.Module("Database access") {
+    bind<DataBaseAccess>() with singleton {
+        val configurationProperties by di.instance<ConfigurationProperties>()
+        val driverClass = configurationProperties.getProperty("database.driver")
+        val jdbcUrl = configurationProperties.getProperty("database.jdbcUrl")
+        val userName = configurationProperties.getProperty("database.username")
+        val password = configurationProperties.getProperty("database.password")
+        val maxActiveConnections = configurationProperties.getProperty("database.maxActiveConnections")
+        val access = DataBaseAccess(
+                driverClass,
+                jdbcUrl,
+                userName,
+                password,
+                maxActiveConnections.toInt()
+        )
+        DatabaseInitializer(access).initTables()
+        return@singleton access
+    }
+}
+
+fun repositories() = DI.Module("Application repositories") {
+    bind<DataRepository<DomainUser>>() with singleton { DbUserRepository(instance()) }
     bind<DataRepository<RoleAggregate>>() with singleton { InMemoryRoleAggregateRepository() }
 }
