@@ -30,6 +30,9 @@ dependencies {
     implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:7.0.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
     testImplementation("io.ktor:ktor-server-tests:1.3.2")
+
+    testImplementation("org.testcontainers:testcontainers:1.14.3")
+    testImplementation("org.testcontainers:postgresql:1.14.3")
 }
 
 tasks.withType<Test> {

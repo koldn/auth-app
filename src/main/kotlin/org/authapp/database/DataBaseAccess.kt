@@ -1,4 +1,4 @@
-package org.authapp.security.repository
+package org.authapp.database
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
