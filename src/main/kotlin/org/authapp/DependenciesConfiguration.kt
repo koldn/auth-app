@@ -4,10 +4,9 @@ import org.authapp.database.DataBaseAccess
 import org.authapp.database.DatabaseInitializer
 import org.authapp.database.config.DatabaseProperties
 import org.authapp.database.domain.DomainUser
-import org.authapp.database.domain.RoleAggregate
 import org.authapp.database.repository.DataRepository
 import org.authapp.database.repository.DbUserRepository
-import org.authapp.database.repository.RoleAggregateRepository
+import org.authapp.database.repository.RolesRepository
 import org.authapp.security.auth.AuthenticatorCodes
 import org.authapp.security.auth.BasicAuthenticator
 import org.authapp.security.encrypt.DefaultPasswordCoder
@@ -18,6 +17,7 @@ import org.authapp.security.jwt.JwtTokenFactory
 import org.authapp.security.jwt.TokenFactory
 import org.authapp.security.user.DefaultPrincipalLoader
 import org.authapp.security.user.PrincipalLoader
+import org.authapp.security.user.role.UserRole
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.kodein.di.DI
 import org.kodein.di.bind
@@ -63,8 +63,8 @@ fun database(dbProps: DatabaseProperties) = DI.Module("Database access") {
 
 fun repositories() = DI.Module("Application repositories") {
     bind<DataRepository<DomainUser>>() with singleton { DbUserRepository(instance()) }
-    bind<DataRepository<RoleAggregate>>() with singleton {
+    bind<DataRepository<UserRole>>() with singleton {
         val dbAccess by di.instance<DataBaseAccess>()
-        RoleAggregateRepository(dbAccess.database)
+        RolesRepository(dbAccess.database)
     }
 }

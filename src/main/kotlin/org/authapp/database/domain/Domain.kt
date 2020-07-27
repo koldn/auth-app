@@ -25,13 +25,11 @@ object RolesTable : IdTable<String>(name = "tbl_role") {
 //Entities
 class UserEntity(id: EntityID<String>) : Entity<String>(id) {
     companion object : EntityClass<String, UserEntity>(UserTable)
-
     var password by UserTable.password
     var userRole by UserTable.userRole
 }
 
 class Role(id: EntityID<String>) : Entity<String>(id) {
     companion object : EntityClass<String, Role>(RolesTable)
-
     var includes by RolesTable.includes
 }
