@@ -1,10 +1,16 @@
 package org.authapp.security.auth
 
+import org.authapp.database.domain.DomainUser
+import org.authapp.database.repository.DataRepository
 import org.authapp.security.encrypt.PasswordCoder
 import org.authapp.security.feature.spi.*
-import org.authapp.security.user.PrincipalLoader
+import org.authapp.security.user.PrincipalFactory
 
-class BasicAuthenticator(private val principalLoader: PrincipalLoader, private val passwordCoder: PasswordCoder) : Authenticator {
+class BasicAuthenticator(
+        private val userRepository: DataRepository<DomainUser>,
+        private val principalFactory: PrincipalFactory,
+        private val passwordCoder: PasswordCoder
+) : Authenticator {
 
     data class BasicCredentials(val userName: String, val password: String) : UserCredentials
 
@@ -14,14 +20,12 @@ class BasicAuthenticator(private val principalLoader: PrincipalLoader, private v
         }
         val userName = credentials.userName
         val rawPassword = credentials.password
-        val principal: Principal? = principalLoader.loadPrincipal(userName)
-        if (principal == null) {
-            return FailedAuthentication("User $userName not found")
-        }
-        if (!passwordCoder.matches(rawPassword, principal.password())) {
+        val domainUser = (userRepository.findById(userName)
+                ?: return FailedAuthentication("User $userName not found"))
+        if (!passwordCoder.matches(rawPassword, domainUser.password)) {
             return FailedAuthentication("Invalid password")
         }
-        return SuccessFullAuthentication(principal)
+        return SuccessFullAuthentication(principalFactory.createPrincipal(domainUser))
     }
 
     override fun code() = AuthenticatorCodes.BASIC

@@ -2,11 +2,18 @@ package org.authapp.security.jwt
 
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
+import org.authapp.database.domain.DomainUser
+import org.authapp.database.repository.DataRepository
 import org.authapp.security.auth.AuthenticatorCodes
 import org.authapp.security.feature.spi.*
-import org.authapp.security.user.PrincipalLoader
+import org.authapp.security.user.PrincipalFactory
 
-class JwtAuthenticator(private val principalLoader: PrincipalLoader, private val issuer: String, private val secretToken: String) : Authenticator {
+class JwtAuthenticator(
+        private val principalFactory: PrincipalFactory,
+        private val userRepository: DataRepository<DomainUser>,
+        private val issuer: String,
+        private val secretToken: String
+) : Authenticator {
     data class TokenCredentials(val token: String) : UserCredentials
 
     override suspend fun authenticate(credentials: UserCredentials): AuthenticationResult {
@@ -20,9 +27,9 @@ class JwtAuthenticator(private val principalLoader: PrincipalLoader, private val
                 return FailedAuthentication("Invalid token")
             }
             val userName = body.audience
-            val principal = principalLoader.loadPrincipal(userName)
+            val domainUser = userRepository.findById(userName)
                     ?: return FailedAuthentication("User $userName not found")
-            return SuccessFullAuthentication(principal)
+            return SuccessFullAuthentication(principalFactory.createPrincipal(domainUser))
 
 
         } catch (e: JwtException) {

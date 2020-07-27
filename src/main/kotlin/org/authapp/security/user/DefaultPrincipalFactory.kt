@@ -6,14 +6,9 @@ import org.authapp.database.repository.DataRepository
 import org.authapp.security.feature.spi.Principal
 import org.authapp.security.user.role.UserRole
 
-class DefaultPrincipalLoader(
-        private val userRepository: DataRepository<DomainUser>,
-        private val rolesRepository: DataRepository<UserRole>
-) : PrincipalLoader {
-    override fun loadPrincipal(userName: String): Principal? {
-        return userRepository.findById(userName)?.let {
-            UserPrincipal(it.userName, it.password, buildRoleAggregate(it.userRole))
-        }
+class DefaultPrincipalFactory(private val rolesRepository: DataRepository<UserRole>) : PrincipalFactory {
+    override fun createPrincipal(user: DomainUser): Principal {
+        return UserPrincipal(user.userName, buildRoleAggregate(user.userRole))
     }
 
     private fun buildRoleAggregate(fromRole: String): RoleAggregate {

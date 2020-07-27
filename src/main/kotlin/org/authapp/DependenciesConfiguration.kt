@@ -15,8 +15,8 @@ import org.authapp.security.feature.spi.Authenticator
 import org.authapp.security.jwt.JwtAuthenticator
 import org.authapp.security.jwt.JwtTokenFactory
 import org.authapp.security.jwt.TokenFactory
-import org.authapp.security.user.DefaultPrincipalLoader
-import org.authapp.security.user.PrincipalLoader
+import org.authapp.security.user.DefaultPrincipalFactory
+import org.authapp.security.user.PrincipalFactory
 import org.authapp.security.user.role.UserRole
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.kodein.di.DI
@@ -34,13 +34,15 @@ fun securityDeps() = DI.Module("Security components", false) {
     }
 
     bind<PasswordCoder>() with singleton { DefaultPasswordCoder() }
-    bind<PrincipalLoader>() with singleton { DefaultPrincipalLoader(instance(), instance()) }
-    bind<Authenticator>(tag = AuthenticatorCodes.BASIC) with singleton { BasicAuthenticator(instance(), instance()) }
+    bind<PrincipalFactory>() with singleton { DefaultPrincipalFactory(instance()) }
+    bind<Authenticator>(tag = AuthenticatorCodes.BASIC) with singleton {
+        BasicAuthenticator(instance(), instance(), instance())
+    }
     bind<Authenticator>(tag = AuthenticatorCodes.TOKEN) with singleton {
         val configurationProperties by di.instance<ConfigurationProperties>()
         val jwtSecret = configurationProperties.getProperty("jwt.secret")
         val issuer = configurationProperties.getProperty("jwt.app_name")
-        JwtAuthenticator(instance(), issuer, jwtSecret)
+        JwtAuthenticator(instance(), instance(), issuer, jwtSecret)
     }
 }
 
