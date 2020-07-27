@@ -74,8 +74,36 @@ fun Application.configureApplication() {
 
             val encoded = passwordCoder.encodePassword(password!!)
             userRepository.save(DomainUser(username, encoded, SystemRoles.USER))
-            call.respondText { username }
+            call.respond("Registered")
         }
+
+        authenticate(AuthenticatorCodes.TOKEN) {
+            post("/change_password") {
+                val parameters = call.receiveParameters()
+                val oldPassword = parameters["oldPassword"]
+                if (oldPassword.isNullOrEmpty()) {
+                    call.respond(HttpStatusCode.BadRequest, "Old password is not specified")
+                    return@post
+                }
+                val newPassword = parameters["newPassword"]
+                if (newPassword.isNullOrEmpty()) {
+                    call.respond(HttpStatusCode.BadRequest, "New password is not specified")
+                    return@post
+                }
+                val userName = call.getPrincipal().userName()
+                val userRepository by di().instance<DataRepository<DomainUser>>()
+                val passwordCoder by di().instance<PasswordCoder>()
+                val user = userRepository.findById(userName)!!
+                if (!passwordCoder.matches(oldPassword, user.password)) {
+                    call.respond(HttpStatusCode.BadRequest, "Passwords do not match")
+                    return@post
+                }
+                user.password = passwordCoder.encodePassword(newPassword)
+                userRepository.save(user)
+                call.respond("Changed")
+            }
+        }
+
         authenticate(AuthenticatorCodes.BASIC) {
             post("/authenticate") {
                 val token by di().instance<TokenFactory>()
@@ -83,6 +111,7 @@ fun Application.configureApplication() {
                 call.respondText(token.createToken(userName))
             }
         }
+
         authenticate(AuthenticatorCodes.TOKEN, SystemRoles.ADMIN) {
             post("/admin_space") {
                 call.respondText("Hello admin!")

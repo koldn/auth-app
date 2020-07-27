@@ -6,7 +6,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.Column
 
-class DomainUser(val userName: String, val password: String, val userRole: String)
+class DomainUser(val userName: String, var password: String, var userRole: String)
 class RoleAggregate(val roles: Set<String>)
 
 //Exposed

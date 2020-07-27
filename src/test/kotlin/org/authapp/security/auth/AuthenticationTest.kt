@@ -3,60 +3,20 @@ package org.authapp.security.auth
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.TestApplicationEngine
-import io.ktor.server.testing.createTestEnvironment
 import io.ktor.server.testing.handleRequest
-import org.authapp.ConfigurationProperties
-import org.authapp.configureApplication
-import org.authapp.configureDi
 import org.authapp.database.domain.DomainUser
 import org.authapp.database.repository.DataRepository
-import org.authapp.security.KPostgresContainer
-import org.authapp.security.TestDatabaseProperties
+import org.authapp.security.BaseApplicationTest
 import org.authapp.security.encrypt.PasswordCoder
 import org.authapp.security.user.role.SystemRoles
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 import org.kodein.di.instance
 import org.kodein.di.ktor.di
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class AuthenticationTest {
-    lateinit var engine: TestApplicationEngine
-
-    companion object {
-        val container: KPostgresContainer = KPostgresContainer("postgres:12")
-                .withDatabaseName("test")
-                .withUsername("test")
-                .withPassword("testPassword")
-    }
-
-    @BeforeAll
-    fun startServer() {
-
-        container.start()
-        val environment = createTestEnvironment()
-        val testApplicationEngine = TestApplicationEngine(environment)
-        testApplicationEngine.start()
-        val configurationProperties = ConfigurationProperties()
-        val databaseConf = TestDatabaseProperties(container)
-        testApplicationEngine.application.configureDi(configurationProperties, databaseConf)
-        testApplicationEngine.application.configureApplication()
-        engine = testApplicationEngine
-    }
-
-    @AfterEach
-    internal fun clearRepositories() {
-        val users by engine.application.di().instance<DataRepository<DomainUser>>()
-        users.deleteAll()
-    }
-
-    @AfterAll
-    internal fun stopServer() {
-        engine.stop(0L, 0L)
-        container.stop()
-    }
+class AuthenticationTest : BaseApplicationTest() {
 
     @Test
     fun `Request without authorization header should be responded with 'Unauthorized' status code`() {
