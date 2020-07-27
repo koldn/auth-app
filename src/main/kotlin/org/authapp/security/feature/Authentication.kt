@@ -35,7 +35,7 @@ class Authentication(config: Config) {
             pipeline.insertPhaseAfter(authPhase, rolesPhase)
             pipeline.intercept(rolesPhase) {
                 if (!call.getPrincipal().hasRole(role)) {
-                    call.respond(HttpStatusCode.Unauthorized, "Insufficient role")
+                    call.respond(HttpStatusCode.Forbidden, "Insufficient role")
                     finish()
                 }
             }

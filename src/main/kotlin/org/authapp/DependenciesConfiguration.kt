@@ -59,7 +59,7 @@ fun database(dbProps: DatabaseProperties) = DI.Module("Database access") {
             DatabaseInitializer.initTables()
             DatabaseInitializer.initializeSystemRoles()
         }
-        return@singleton access
+        access
     }
 }
 

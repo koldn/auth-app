@@ -66,7 +66,7 @@ class AuthenticationTest : BaseApplicationTest() {
         with(engine.handleRequest(HttpMethod.Post, "/admin_space") {
             addHeader(HttpHeaders.Authorization, "Bearer $token")
         }) {
-            Assertions.assertEquals(HttpStatusCode.Unauthorized, response.status())
+            Assertions.assertEquals(HttpStatusCode.Forbidden, response.status())
             Assertions.assertEquals("Insufficient role", response.content)
         }
     }
@@ -88,7 +88,7 @@ class AuthenticationTest : BaseApplicationTest() {
         with(engine.handleRequest(HttpMethod.Post, "/reviewer_space") {
             addHeader(HttpHeaders.Authorization, "Bearer $token")
         }) {
-            Assertions.assertEquals(HttpStatusCode.Unauthorized, response.status())
+            Assertions.assertEquals(HttpStatusCode.Forbidden, response.status())
             Assertions.assertEquals("Insufficient role", response.content)
         }
     }
