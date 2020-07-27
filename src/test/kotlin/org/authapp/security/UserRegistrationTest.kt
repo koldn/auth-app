@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class UserRegistartionTest {
+class UserRegistrationTest {
     lateinit var engine: TestApplicationEngine
 
     companion object {
