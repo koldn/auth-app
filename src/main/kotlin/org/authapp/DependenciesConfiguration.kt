@@ -33,7 +33,8 @@ fun securityDeps() = DI.Module("Security components", false) {
         val configurationProperties by di.instance<ApplicationConfig>()
         val jwtSecret = configurationProperties.property("jwt.secret").getString()
         val issuer = configurationProperties.property("jwt.app_name").getString()
-        JwtTokenFactory(issuer, jwtSecret)
+        val tokenLifeTimeSeconds = configurationProperties.property("jwt.lifetime").getString().toLong()
+        JwtTokenFactory(tokenLifeTimeSeconds, issuer, jwtSecret)
     }
 
     bind<PasswordCoder>() with singleton { DefaultPasswordCoder() }
