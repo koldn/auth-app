@@ -7,7 +7,7 @@ import org.authapp.database.domain.UserTable
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DbUserRepository(private val dbAccess: DataBaseAccess) : DataRepository<DomainUser> {
+class UserRepository(private val dbAccess: DataBaseAccess) : DataRepository<DomainUser> {
     override fun findById(id: String): DomainUser? {
         return transaction(dbAccess.database) {
             UserEntity.findById(id)?.let {

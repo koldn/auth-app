@@ -8,8 +8,8 @@ import org.authapp.database.DatabaseInitializer
 import org.authapp.database.config.DatabaseProperties
 import org.authapp.database.domain.DomainUser
 import org.authapp.database.repository.DataRepository
-import org.authapp.database.repository.DbUserRepository
 import org.authapp.database.repository.RolesRepository
+import org.authapp.database.repository.UserRepository
 import org.authapp.security.auth.AuthenticatorCodes
 import org.authapp.security.auth.BasicAuthenticator
 import org.authapp.security.encrypt.DefaultPasswordCoder
@@ -68,7 +68,7 @@ fun database(dbProps: DatabaseProperties) = DI.Module("Database access") {
 }
 
 fun repositories() = DI.Module("Application repositories") {
-    bind<DataRepository<DomainUser>>() with singleton { DbUserRepository(instance()) }
+    bind<DataRepository<DomainUser>>() with singleton { UserRepository(instance()) }
     bind<DataRepository<UserRole>>() with singleton {
         val dbAccess by di.instance<DataBaseAccess>()
         RolesRepository(dbAccess.database)
