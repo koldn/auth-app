@@ -7,6 +7,7 @@ import org.authapp.database.domain.DomainUser
 import org.authapp.database.repository.DataRepository
 import org.authapp.security.auth.AuthenticatorCodes
 import org.authapp.security.user.PrincipalFactory
+import org.slf4j.LoggerFactory
 
 class JwtAuthenticator(
         private val principalFactory: PrincipalFactory,
@@ -15,6 +16,10 @@ class JwtAuthenticator(
         private val secretToken: String
 ) : Authenticator {
     data class TokenCredentials(val token: String) : UserCredentials
+
+    companion object {
+        private val LOGGER = LoggerFactory.getLogger(JwtAuthenticator::class.java)
+    }
 
     override suspend fun authenticate(credentials: UserCredentials): AuthenticationResult {
         if (credentials !is TokenCredentials) {
@@ -33,7 +38,7 @@ class JwtAuthenticator(
 
 
         } catch (e: JwtException) {
-            //TODO log me!
+            LOGGER.error("Invalid token {}", e.toString(), e)
         }
         return FailedAuthentication("Invalid token")
     }

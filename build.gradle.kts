@@ -28,6 +28,10 @@ dependencies {
 
     implementation("org.kodein.di:kodein-di:7.0.0")
     implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:7.0.0")
+
+    implementation("ch.qos.logback:logback-classic:1.2.3")
+
+
     testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
     testImplementation("io.ktor:ktor-server-tests:1.3.2")
 
