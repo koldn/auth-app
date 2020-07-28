@@ -1,11 +1,11 @@
-package org.authapp.security.feature.ext
+package org.authapp.authfeature.ext
 
 import io.ktor.application.ApplicationCall
 import io.ktor.application.feature
 import io.ktor.routing.*
-import org.authapp.security.feature.AuthConstants
-import org.authapp.security.feature.Authentication
-import org.authapp.security.feature.spi.Principal
+import org.authapp.authfeature.AuthConstants
+import org.authapp.authfeature.Authentication
+import org.authapp.authfeature.spi.Principal
 
 fun ApplicationCall.getPrincipal(): Principal {
     return this.attributes[AuthConstants.principalKey]

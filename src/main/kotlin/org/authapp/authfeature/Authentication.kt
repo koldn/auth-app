@@ -1,4 +1,4 @@
-package org.authapp.security.feature
+package org.authapp.authfeature
 
 import io.ktor.application.ApplicationCallPipeline
 import io.ktor.application.ApplicationFeature
@@ -9,8 +9,8 @@ import io.ktor.util.AttributeKey
 import io.ktor.util.pipeline.PipelinePhase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.authapp.security.feature.ext.getPrincipal
-import org.authapp.security.feature.spi.*
+import org.authapp.authfeature.ext.getPrincipal
+import org.authapp.authfeature.spi.*
 
 
 object AuthConstants {

@@ -2,8 +2,8 @@ package org.authapp.security.auth
 
 import io.ktor.application.ApplicationCall
 import io.ktor.http.HttpHeaders
-import org.authapp.security.feature.spi.UserCredentials
-import org.authapp.security.feature.spi.UserCredentialsExtractor
+import org.authapp.authfeature.spi.UserCredentials
+import org.authapp.authfeature.spi.UserCredentialsExtractor
 import org.authapp.security.jwt.JwtAuthenticator
 import java.nio.charset.StandardCharsets
 import java.util.*

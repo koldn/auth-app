@@ -1,9 +1,9 @@
 package org.authapp.security.auth
 
+import org.authapp.authfeature.spi.*
 import org.authapp.database.domain.DomainUser
 import org.authapp.database.repository.DataRepository
 import org.authapp.security.encrypt.PasswordCoder
-import org.authapp.security.feature.spi.*
 import org.authapp.security.user.PrincipalFactory
 
 class BasicAuthenticator(

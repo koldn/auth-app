@@ -1,5 +1,6 @@
 package org.authapp
 
+import org.authapp.authfeature.spi.Authenticator
 import org.authapp.database.DataBaseAccess
 import org.authapp.database.DatabaseInitializer
 import org.authapp.database.config.DatabaseProperties
@@ -11,7 +12,6 @@ import org.authapp.security.auth.AuthenticatorCodes
 import org.authapp.security.auth.BasicAuthenticator
 import org.authapp.security.encrypt.DefaultPasswordCoder
 import org.authapp.security.encrypt.PasswordCoder
-import org.authapp.security.feature.spi.Authenticator
 import org.authapp.security.jwt.JwtAuthenticator
 import org.authapp.security.jwt.JwtTokenFactory
 import org.authapp.security.jwt.TokenFactory

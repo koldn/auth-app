@@ -1,9 +1,9 @@
 package org.authapp.security.user
 
+import org.authapp.authfeature.spi.Principal
 import org.authapp.database.domain.DomainUser
 import org.authapp.database.domain.RoleAggregate
 import org.authapp.database.repository.DataRepository
-import org.authapp.security.feature.spi.Principal
 import org.authapp.security.user.role.UserRole
 
 class DefaultPrincipalFactory(private val rolesRepository: DataRepository<UserRole>) : PrincipalFactory {

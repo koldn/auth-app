@@ -11,6 +11,10 @@ import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import org.authapp.authfeature.Authentication
+import org.authapp.authfeature.ext.authenticate
+import org.authapp.authfeature.ext.getPrincipal
+import org.authapp.authfeature.spi.Authenticator
 import org.authapp.database.config.DatabaseProperties
 import org.authapp.database.config.DefaultDatabaseProperties
 import org.authapp.database.domain.DomainUser
@@ -18,10 +22,6 @@ import org.authapp.database.repository.DataRepository
 import org.authapp.security.auth.AuthenticatorCodes
 import org.authapp.security.auth.DefaultUserCredentialsExtractor
 import org.authapp.security.encrypt.PasswordCoder
-import org.authapp.security.feature.Authentication
-import org.authapp.security.feature.ext.authenticate
-import org.authapp.security.feature.ext.getPrincipal
-import org.authapp.security.feature.spi.Authenticator
 import org.authapp.security.jwt.TokenFactory
 import org.authapp.security.user.role.SystemRoles
 import org.kodein.di.bind

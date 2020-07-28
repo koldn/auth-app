@@ -1,4 +1,4 @@
-package org.authapp.security.feature.spi
+package org.authapp.authfeature.spi
 
 sealed class AuthenticationResult
 class SuccessFullAuthentication(val principal: Principal) : AuthenticationResult()

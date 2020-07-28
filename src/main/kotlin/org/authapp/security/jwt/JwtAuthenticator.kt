@@ -2,10 +2,10 @@ package org.authapp.security.jwt
 
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
+import org.authapp.authfeature.spi.*
 import org.authapp.database.domain.DomainUser
 import org.authapp.database.repository.DataRepository
 import org.authapp.security.auth.AuthenticatorCodes
-import org.authapp.security.feature.spi.*
 import org.authapp.security.user.PrincipalFactory
 
 class JwtAuthenticator(
