@@ -27,7 +27,6 @@ open class BaseApplicationTest {
 
     @BeforeAll
     fun startServer() {
-
         container.start()
         val environment = createTestEnvironment()
         val testApplicationEngine = TestApplicationEngine(environment)

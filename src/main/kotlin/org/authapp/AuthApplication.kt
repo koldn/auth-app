@@ -31,12 +31,18 @@ import org.kodein.di.singleton
 
 
 fun main() {
-    embeddedServer(Netty, port = 8080) {
-        val props = ConfigurationProperties()
-        val dbConfig = DefaultDatabaseProperties(props)
-        configureDi(props, dbConfig)
-        configureApplication()
-    }.start(true)
+    val configurationProperties = ConfigurationProperties()
+    createServer(configurationProperties = ConfigurationProperties(), databaseProperties = DefaultDatabaseProperties(configurationProperties)).start(true)
+}
+
+
+fun createServer(
+        port: Int = 8080,
+        configurationProperties: ConfigurationProperties,
+        databaseProperties: DatabaseProperties
+) = embeddedServer(Netty, port) {
+    configureDi(configurationProperties, databaseProperties)
+    configureApplication()
 }
 
 fun Application.configureDi(props: ConfigurationProperties, dbProps: DatabaseProperties) {
