@@ -1,8 +1,11 @@
 package org.authapp
 
+import com.typesafe.config.ConfigFactory
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
+import io.ktor.config.ApplicationConfig
+import io.ktor.config.HoconApplicationConfig
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
@@ -11,6 +14,7 @@ import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.util.KtorExperimentalAPI
 import org.authapp.authfeature.Authentication
 import org.authapp.authfeature.ext.authenticate
 import org.authapp.authfeature.ext.getPrincipal
@@ -30,27 +34,30 @@ import org.kodein.di.ktor.di
 import org.kodein.di.singleton
 
 
+@KtorExperimentalAPI
 fun main() {
-    val configurationProperties = ConfigurationProperties()
-    createServer(configurationProperties = ConfigurationProperties(), databaseProperties = DefaultDatabaseProperties(configurationProperties)).start(true)
+    createServer(explicitDatabaseProperties = null).start(true)
 }
 
 
+@KtorExperimentalAPI
 fun createServer(
         port: Int = 8080,
-        configurationProperties: ConfigurationProperties,
-        databaseProperties: DatabaseProperties
+        explicitDatabaseProperties: DatabaseProperties?
 ) = embeddedServer(Netty, port) {
-    configureDi(configurationProperties, databaseProperties)
+    val applicationConfig = HoconApplicationConfig(ConfigFactory.load())
+    val dbprops = explicitDatabaseProperties ?: DefaultDatabaseProperties(applicationConfig)
+    configureDi(applicationConfig, dbprops)
     configureApplication()
 }
 
-fun Application.configureDi(props: ConfigurationProperties, dbProps: DatabaseProperties) {
+@KtorExperimentalAPI
+fun Application.configureDi(props: ApplicationConfig, dbProps: DatabaseProperties) {
     di {
         import(database(dbProps))
         import(repositories())
         import(securityDeps())
-        bind<ConfigurationProperties>() with singleton { props }
+        bind<ApplicationConfig>() with singleton { props }
     }
 }
 

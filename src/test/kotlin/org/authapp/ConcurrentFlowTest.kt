@@ -35,7 +35,7 @@ class ConcurrentFlowTest {
     fun setUp() {
         container.start()
         port = ServerSocket(port).use { it.localPort }
-        server = createServer(port, ConfigurationProperties(), TestDatabaseProperties(container))
+        server = createServer(port, TestDatabaseProperties(container))
         server.start(false)
     }
 

@@ -1,5 +1,7 @@
 package org.authapp
 
+import io.ktor.config.ApplicationConfig
+import io.ktor.util.KtorExperimentalAPI
 import org.authapp.authfeature.spi.Authenticator
 import org.authapp.database.DataBaseAccess
 import org.authapp.database.DatabaseInitializer
@@ -24,12 +26,13 @@ import org.kodein.di.bind
 import org.kodein.di.instance
 import org.kodein.di.singleton
 
+@KtorExperimentalAPI
 fun securityDeps() = DI.Module("Security components", false) {
     //token factory
     bind<TokenFactory>() with singleton {
-        val configurationProperties by di.instance<ConfigurationProperties>()
-        val jwtSecret = configurationProperties.getProperty("jwt.secret")
-        val issuer = configurationProperties.getProperty("jwt.app_name")
+        val configurationProperties by di.instance<ApplicationConfig>()
+        val jwtSecret = configurationProperties.property("jwt.secret").getString()
+        val issuer = configurationProperties.property("jwt.app_name").getString()
         JwtTokenFactory(issuer, jwtSecret)
     }
 
@@ -39,9 +42,9 @@ fun securityDeps() = DI.Module("Security components", false) {
         BasicAuthenticator(instance(), instance(), instance())
     }
     bind<Authenticator>(tag = AuthenticatorCodes.TOKEN) with singleton {
-        val configurationProperties by di.instance<ConfigurationProperties>()
-        val jwtSecret = configurationProperties.getProperty("jwt.secret")
-        val issuer = configurationProperties.getProperty("jwt.app_name")
+        val configurationProperties by di.instance<ApplicationConfig>()
+        val jwtSecret = configurationProperties.property("jwt.secret").getString()
+        val issuer = configurationProperties.property("jwt.app_name").getString()
         JwtAuthenticator(instance(), instance(), issuer, jwtSecret)
     }
 }

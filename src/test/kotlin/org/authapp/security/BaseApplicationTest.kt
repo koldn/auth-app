@@ -1,8 +1,9 @@
 package org.authapp.security
 
+import com.typesafe.config.ConfigFactory
+import io.ktor.config.HoconApplicationConfig
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.createTestEnvironment
-import org.authapp.ConfigurationProperties
 import org.authapp.configureApplication
 import org.authapp.configureDi
 import org.authapp.database.domain.DomainUser
@@ -31,10 +32,10 @@ open class BaseApplicationTest {
         val environment = createTestEnvironment()
         val testApplicationEngine = TestApplicationEngine(environment)
         testApplicationEngine.start()
-        val configurationProperties = ConfigurationProperties()
         val databaseConf = TestDatabaseProperties(container)
-        testApplicationEngine.application.configureDi(configurationProperties, databaseConf)
-        testApplicationEngine.application.configureApplication()
+        val application = testApplicationEngine.application
+        application.configureDi(HoconApplicationConfig(ConfigFactory.load()), databaseConf)
+        application.configureApplication()
         engine = testApplicationEngine
     }
 

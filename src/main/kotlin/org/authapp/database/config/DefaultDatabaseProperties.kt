@@ -1,23 +1,25 @@
 package org.authapp.database.config
 
-import org.authapp.ConfigurationProperties
+import io.ktor.config.ApplicationConfig
+import io.ktor.util.KtorExperimentalAPI
 
-class DefaultDatabaseProperties(private val config: ConfigurationProperties) : DatabaseProperties {
-    override fun jdbcUrl(): String = config.getProperty("database.jdbcUrl")
+@KtorExperimentalAPI
+class DefaultDatabaseProperties(private val config: ApplicationConfig) : DatabaseProperties {
+    override fun jdbcUrl(): String = config.property("database.jdbcUrl").getString()
 
     override fun driver(): String {
-        return config.getProperty("database.driver")
+        return config.property("database.driver").getString()
     }
 
     override fun username(): String {
-        return config.getProperty("database.username")
+        return config.property("database.username").getString()
     }
 
     override fun password(): String {
-        return config.getProperty("database.password")
+        return config.property("database.password").getString()
     }
 
     override fun maxActiveConnections(): Int {
-        return config.getProperty("database.maxActiveConnections").toInt()
+        return config.property("database.maxActiveConnections").getString().toInt()
     }
 }
